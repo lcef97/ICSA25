@@ -1,15 +1,17 @@
 ---
 title: "SchoolDataIT"
 author:
-  - Leonardo Cefalo (UniBa) 
-  - Paolo Maranzano (UniMiB)
-  - Alessio Pollice (UniBa)
-subtitle: "An R package to Retrieve, Harmonise and Map Open Data regarding the Italian school System"
+- Leonardo Cefalo (UniBa)
+- Paolo Maranzano (UniMiB)
+- Alessio Pollice (UniBa)
+subtitle: An R package to Retrieve, Harmonise and Map Open Data regarding the Italian
+  school System
+always_allow_html: true
 output:
   ioslides_presentation:
     css: header_style.css
     slide_level: 2
-
+  beamer_presentation: default
 ---
 
 
@@ -26,16 +28,21 @@ tags$head(
 
 ```
 
-```{r input, include = FALSE}
+```{r input, include = FALSE, message = FALSE, warning = FALSE}
 
 library(SchoolDataIT)
 library(magrittr)
 #  #  #  # font-weight: inherit;
 Mun22_shp <- Get_Shapefile(2022, level = "LAU")
 
+Prov22_shp <- Get_Shapefile(2022, level = "NUTS-3")
+
 Registry23 <- Get_Registry(2023)
 
 AdmUnNames <- Get_AdmUnNames(Year = 2021, date = "31_12_")
+
+School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNames = AdmUnNames)
+
 ```
 
  
@@ -50,16 +57,22 @@ AdmUnNames <- Get_AdmUnNames(Year = 2021, date = "31_12_")
   - Available to either **private**, **corporate** or **academiic** users
   - Data organised at the **territorial level** of municipalities (**LAU/NUTS-4**)
   
-- The present **R package** is intended as a one of the several **contributions** to the **data lake**
 
-## Rationale - the Data lake
+
+If this document is visualised in PDF form, it is possible to open it
+<a href="https://lcef97.github.io/June_presentation/#1" target="_blank">in the HTML version</a>
+
+
+
+## Scope
+
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- This R package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system.
+- The present **R package** is intended as a one of the several **contributions** to the **data lake**
+
+- This package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system.
 
 - Main utility: analysing territorial disparities in **education quality** and **school infrastructure endowment**
-
-- Directly supports **areal modelling**
 
 
 ```{r datalake graph, echo = FALSE, message = FALSE, fig.height = 2}
@@ -74,7 +87,7 @@ datalake.scheme <- function(width = 750){
   node  [shape = rectangle, fontname = 'Poppins']        
   top1  [label = 'Source 1']
   top2  [label = 'Source 2']
-  top3  [label = '...'     ]
+  top3  [label = '  ...  '     ]
   top4  [label = 'Source n']
   mid   [label = 'The Data lake']
   low   [label = 'AMELIA platform']
@@ -99,7 +112,7 @@ datalake.scheme()
 
 
 ## Principles followed
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
 - **Accessibility**: All data must be publicly accessible and easy to handle for the **generic user** 
@@ -116,7 +129,7 @@ datalake.scheme()
 
 ## Main function modules
 
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
 - **`Get_`**: input data **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
@@ -133,7 +146,7 @@ datalake.scheme()
 
 
 ## Main datasets
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 - Data from the **Ministry of Education**
   - Includes:
@@ -149,7 +162,7 @@ datalake.scheme()
   - Available at the NUTS-3 / LAU level
 
 ## Schools Taxonomy
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 - Schools ID - **mechanographical codes**
   - Most complete list: **National Schools Registry**
@@ -226,37 +239,153 @@ example.scheme()
 
 
 
-## School buildings dataset
-
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+## School buildings database
 
 
-```{r School Buildings, results = FALSE}
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, 
-                               input_Registry = Registry23) 
-## ## 2022/23 is the latest year available
-#à ## then, remember adding message = FALSE
+- Main source of information regarding the **school infrastructure**
 
-DB23_MIUR_mun <-  Group_DB_MIUR(Input_DB23_MIUR, InnerAreas = FALSE
-                                )$Municipality_data %>% 
-  dplyr::mutate(log_Surface = log(.data$School_area_surface))
-
-head(DB23_MIUR_mun)
+- Mostly includes **categorical variables**, regarding several aspects such as:
+  - Environmental context
+  - Reachability by public or private transport
+  - Building period
+  - Surfaces and volumes
 
 
+## School buildings database
+
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Functions:
+  - `Get_DB_MIUR()` Scrape the raw data 
+  - `Util_DB_MIUR_num()` Convert variables to **numeric** and **edit** raw data if required
+  - `Group_DB_MIUR()` Harmonise at the territorial level
+  - `Map_SchoolBuildings()` Render
+
+```{r School Buildings, results = FALSE, message = FALSE}
+Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, input_Registry = Registry23) 
+DB23_MIUR_n <- Input_DB23_MIUR %>% Util_DB_MIUR_num()
+DB23_MIUR <- Group_DB_MIUR(DB23_MIUR_n, InnerAreas = F)$
+  Municipality_data %>%  dplyr::mutate(log_Surface = log(.data$School_area_surface))
 ```
 
-- As an example, in the next slide we display middle schools area surface (on logarithmic scale to ease the comparison) for the three regions of Apulia, Basilicata and Calabria.
+## School buildings database
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+Output of `Util_DB_MIUR_num()`:
 
-## Mapping
-<img src="GRINS_watermark.png" alt="Watermark Logo" class="watermark-logo">
+```{r DB MIUR school level table, echo = FALSE, warning = FALSE, message = FALSE}
+nn <- c(11:ncol(DB23_MIUR_n))
+
+DT::datatable(DB23_MIUR_n, options = list(pageLength = 6)) %>% 
+  DT::formatRound(columns = nn, digits = 3)
+```
+
+
+## School buildings database
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+Output of ` Group_DB_MIUR()`
+```{r DB MIUR table, echo = FALSE, warning = FALSE}
+nn <- c(7:ncol(DB23_MIUR))
+
+DT::datatable(DB23_MIUR, options = list(pageLength = 6)) %>% 
+  DT::formatRound(columns = nn, digits = 3)
+```
+
+
+
+
+## School buildings database
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 ```{r map, echo = TRUE, message = FALSE,  fig.height = 3.3}
-DB23_MIUR_mun %>% 
+DB23_MIUR %>% 
   Map_School_Buildings(input_shp = Mun22_shp, field = "log_Surface", 
                        level = "LAU", order = "Middle",
-                       region_code = c(16, 17, 18), verbose = FALSE)
+                       region_code = c(15:18), verbose = FALSE)
 ```
+
+
+## Students per class
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Potential **outliers**: the user can set an **acceptance boundary** in terms of **school-level** average class size (arguments `UB_nstud_byclass` and `LB_nstud_byclass`)
+```{r nstud, warnings = FALSE}
+nstud23 <- Get_nstud(2023, verbose = FALSE)
+nstud23_byClass <- nstud23 %>% Util_nstud_wide(UB_nstud_byclass = 45)
+nstud23_mun <- Group_nstud(nstud23_byClass, 
+  input_Registry = Registry23, input_School2mun = School2mun23, 
+  verbose = FALSE)$Municipality_data
+```
+## Students counts
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+```{r nstud table, echo = FALSE, warning = FALSE}
+nn <- c(6:ncol(nstud23_mun))
+
+DT::datatable(nstud23_mun, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = nn, digits = 2)
+```
+
  
+## Ultra-Broadband activation
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+- National Ultra - Broadband plan (2020): regards about **$35.000$ schools** over the national territory (the vast majority)
+- Plan expected to be fulfilled by 2023 EoY; however, works are still in progress for a number of schools
+- By definition, Ultra - BroadBand connection has a minimum guaranteed speed of **100 megabits/second** until the peering, with a maximum of **1 Gigabit/second**
+
+
+## Ultra - Broadband activation
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+```{r Broadband, warnings = FALSE, output = FALSE}
+
+BB24 <- Get_BroadBand(Date = as.Date("2024-01-01"), verbose = FALSE) %>% 
+  dplyr::filter(.data$Order == "High") %>% 
+  dplyr::group_by(.data$Region_description) %>% 
+  dplyr::summarise(Status = mean(.data$BB_Activation_status)) 
+```
+
+```{r Broadband summary, echo = FALSE, warnings = FALSE}
+DT::datatable(BB24, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = "Status", digits = 4)
+```
+
+
+
+
+## Invalsi census survey
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Aggregate measure of **students skills**, expressed either as the territorial average of:
+  - Percentage of **sufficient tests** (primary schools only)
+  - **Ability** of $i$-th student ($A_i$) to answer correctly the question $Q_j$ of difficulty $D_j$, based on the model
+  $$Prob \lbrace Q_{ij} = 1 \rbrace = \frac{e^{A_i - D_j}}{1 + e^{A_i - D_j}}$$ 
+- **Spatially homogeneous** indicator
+- Three variables:
+  `M_`: mean; `S_`: standard deviation; `C_`: coverage
+
+## Invalsi census survey
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+<!-- Example: Mathematics score for the last year of high school, year 2022/23, province level:  -->
+
+```{r Invalsi, message = FALSE, warning = FALSE, fig.height=3.3}
+Map_Invalsi(input_shp = Prov22_shp, grade = 13, subj = "MAT", 
+  Year = 2023, level = "NUTS-3",  main ="Maths score",
+  pal = "viridis", verbose =FALSE)
+```
+
+
+
+
+
+
 

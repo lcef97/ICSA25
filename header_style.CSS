@@ -2,7 +2,7 @@
   width: 1100px;
   height: 620px;
   padding-left: -60px;
-  background-image: url('GRINS_template_v1.png');
+  background-image: url('C:\Users\Leonardo\Downloads\UniBA\Spoke 7\Package presentation\presentation\docs\GRINS_template_v2.png');
   background-size: contain;  
   background-position: center;
   background-repeat: no-repeat;
@@ -15,7 +15,7 @@
 
 .title-slide hgroup h1 {
   position: absolute;
-  margin-top: 3.1em;
+  margin-top: 3.6em;
   margin-left: 2em;
   color: #fff;
 }
@@ -23,7 +23,7 @@
 .title-slide hgroup h2 {
   position: absolute;  
   top: 360px;  /* Adjust as necessary to position the subtitle vertically */
-  left: 2em;  /* Adjust as necessary to move the subtitle horizontally */
+  left: 1.6em;  /* Adjust as necessary to move the subtitle horizontally */
   font-size: 34px;
   color: darkgrey;
   line-height: 1.1;
@@ -89,4 +89,29 @@ slides > slide:not(.nobackground):after {
     right: 18px; /* Center the page number horizontally */
     color: white;
     line-height: 1.9;
+}
+
+
+
+.leaflet-popup-content {
+    font-size: 12 px;
+    line-height: 0.8; /*padding: 10px; */
+}
+.leaflet-popup-content-wrapper {
+    font-size: 12 px;
+    line-height: 0.8; /*padding: 10px; */
+    max-width: 400px; /* Set your desired maximum width */
+    width: auto; /* Allow the popup to expand based on content */
+}
+
+table.dataTable {
+    font-size: 14px;
+    /*width: 50%;  */
+    height: 200px ; 
+ }
+.dataTables_wrapper {
+    font-size: 14px;
+    width: 80% ;
+    height: 360px ; 
+    overflow: auto;
 }
