@@ -22,13 +22,13 @@
 
 .title-slide hgroup h2 {
   position: absolute;  
-  top: 360px;  /* Adjust as necessary to position the subtitle vertically */
-  left: 1.6em;  /* Adjust as necessary to move the subtitle horizontally */
+  top: 360px;  
+  left: 1.6em;  
   font-size: 34px;
   color: darkgrey;
   line-height: 1.1;
-  max-width: 600px;  /* Adjust the max-width as necessary */
-  word-wrap: break-word;  /* Ensure words wrap to the next line if they exceed the max width */
+  max-width: 600px;  
+  word-wrap: break-word;  
   white-space: normal;
 }
 
@@ -70,13 +70,13 @@ slides > hgroup h2 {
 .watermark-logo {
     left: 0;
     right: 0;
-    width: 100%; /* Span the entire width of the slide */
+    width: 100%; 
     margin: 0;
     background-image: url('GRINS_watermark.png');
     background-size: contain;
     background-repeat: no-repeat;
     position: absolute;
-    bottom: 6px; /* Adjust the distance from the bottom */
+    bottom: 6px; 
 }
 
 
@@ -85,8 +85,8 @@ slides > slide:not(.nobackground):after {
     font-size: 10pt;
     content: attr(data-slide-num) "/" attr(data-total-slides);
     position: absolute;
-    bottom: 24px; /* Adjust this value to lift the page number up */
-    right: 18px; /* Center the page number horizontally */
+    bottom: 24px; 
+    right: 18px; 
     color: white;
     line-height: 1.9;
 }
@@ -100,8 +100,8 @@ slides > slide:not(.nobackground):after {
 .leaflet-popup-content-wrapper {
     font-size: 12 px;
     line-height: 0.8; /*padding: 10px; */
-    max-width: 400px; /* Set your desired maximum width */
-    width: auto; /* Allow the popup to expand based on content */
+    max-width: 400px;  
+    width: auto;  
 }
 
 table.dataTable {
