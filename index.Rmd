@@ -53,7 +53,7 @@ InnerAreas <- Get_InnerAreas()
 
 - Prime matter of the platform: the **data lake**
   - Broad **repository** hosting several categories of **administrative** data from **different sources**
-  - Available to either **private**, **corporate** or **academiic** users
+  - Available to either **private**, **corporate** or **academic** users
   - Data organised at the **territorial level** of municipalities (**LAU/NUTS-4**)
   
 
@@ -114,10 +114,10 @@ datalake.scheme()
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
-- **Accessibility**: All data must be publicly accessible and easy to handle for the **generic user** 
-  - Input data are **open** and come from publicly accessible web pages
+- **Accessibility**: All data must be **accessible** and easy to handle for the **generic user** 
+  - Input data are **open** and come from public web sources
 
-- **Updating**: All information is retrieved in real time in order to be up-to date
+- **Updating**: All information is retrieved in **real time** 
   - Inputs are **scraped** from the web rather than stored in a built-in repository
 
 - **Portability**: All `R` objects should be easy to export and process with different softwares:
@@ -131,17 +131,17 @@ datalake.scheme()
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
-- **`Get_`**: input data **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
+- **`Get_`**: input **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
 
-- **`Util_`**: utilities; mainly data modification and editing
+- **`Util_`**: utilities; mainly data **modification** and basic editing or quality checks
 
-- **`Group_`**: data aggregation at the relevant territorial level
-  - NUTS-3/Province
-  - LAU/Municipality
+- **`Group_`**: data **aggregation** at the relevant territorial level
+  - **NUTS-3/Province**
+  - **LAU/Municipality**
 
 - **`Map_`**: displaying
-  - Static maps (vector format): easy to export
-  - Interactive maps: preserve information on different variables
+  - **Static** maps (vector format): easy to **export**
+  - **Interactive** maps: preserve **information** on different variables
 
 
 ## Main datasets
@@ -152,13 +152,13 @@ datalake.scheme()
     - National **Schools Registry**
     - **School Buildings** database
     - **Students** and **teachers** counts
-  - Mainly available at the school level (except for the count of teachers)
+  - Mainly available at the **school level** (except for the count of teachers)
 
 - **Ultra - Broadband** implementation
-  - Available at the school level
+  - Available at the **school level**
 
 - **Invalsi** census survey
-  - Available at the NUTS-3 / LAU level
+  - Available at the **NUTS-3** and **LAU** level
 
 ## Schools Taxonomy
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
@@ -343,8 +343,10 @@ Map_DB(nstud23_mun, input_shp = Mun22_shp,
 
 
 - National Ultra - Broadband plan (2020): regards about **$35.000$ schools** over the national territory (the vast majority)
-- Plan expected to be fulfilled by 2023 EoY; however, works are still in progress for a number of schools
-- By definition, Ultra - BroadBand connection has a minimum guaranteed speed of **100 megabits/second** until the peering, with a maximum of **1 Gigabit/second**
+- Plan expected to be fulfilled by 2023 EoY; however, works are still in progress for a number of schools (next slide: works status at **2024/01/01** by region)
+- Ultra - Broadband speed until the peering:
+  - Minimum guaranteed: **100 megabits/second**
+  - Maximum: **1 gigabit/second**
 
 
 ## Ultra - Broadband activation
@@ -419,11 +421,13 @@ DB23 <- Set_DB(input_SchoolBuildings = Input_DB23_MIUR,
 
 ## Available information
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-This is the structure of the output database
+Structure of the merged database - only Apulia region shown
 ```{r DB table, echo = FALSE, warning = FALSE}
-nn <- c(10:ncol(DB23))
+nn <- c(6:ncol(DB23))
 
-DT::datatable(DB23, options = list(pageLength = 5)) %>% 
+DB.out <- DB23 %>% dplyr::filter(.data$Province_code %in% c(71, 72, 73, 74, 75, 110))
+
+DT::datatable(DB.out, options = list(pageLength = 5)) %>% 
   DT::formatRound(columns = nn, digits = 2)
 ```
  
