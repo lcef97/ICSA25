@@ -133,7 +133,7 @@ datalake.scheme()
 
 - **`Get_`**: input **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
 
-- **`Util_`**: utilities; mainly data **modification** and basic editing or quality checks
+- **`Util_`**: utilities; mainly data **modification** or quality checks
 
 - **`Group_`**: data **aggregation** at the relevant territorial level
   - **NUTS-3/Province**
@@ -243,7 +243,7 @@ example.scheme()
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Main source of information regarding the **school infrastructure**
+- Main source of information on **school infrastructure**
 
 - Mostly includes **categorical variables**, regarding several aspects such as:
   - **Environmental** context
