@@ -3,15 +3,12 @@ title: "SchoolDataIT"
 author:
 - Leonardo Cefalo (UniBa)
 - Paolo Maranzano (UniMiB)
-- Alessio Pollice (UniBa)
 subtitle: An R package to Retrieve, Harmonise and Map Open Data regarding the Italian
   school System
-always_allow_html: true
 output:
   ioslides_presentation:
     css: header_style.css
     slide_level: 2
-  beamer_presentation: default
 ---
 
 
@@ -39,9 +36,11 @@ Prov22_shp <- Get_Shapefile(2022, level = "NUTS-3")
 
 Registry23 <- Get_Registry(2023)
 
-AdmUnNames <- Get_AdmUnNames(Year = 2021, date = "31_12_")
+AdmUnNames <- Get_AdmUnNames(Year = 2022, date = "30_06_")
 
 School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNames = AdmUnNames)
+
+InnerAreas <- Get_InnerAreas()
 
 ```
 
@@ -50,7 +49,7 @@ School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNam
 ## Rationale - the Data lake
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- The **GRINS** foundation aims at implementating a **Data platform** for the transfer of knowledge and statistical analysis (**AMELIA**)
+- The **GRINS** foundation aims at implementing a **Data platform** for the transfer of knowledge and statistical analysis (**AMELIA**)
 
 - Prime matter of the platform: the **data lake**
   - Broad **repository** hosting several categories of **administrative** data from **different sources**
@@ -121,8 +120,8 @@ datalake.scheme()
 - **Updating**: All information is retrieved in real time in order to be up-to date
   - Inputs are **scraped** from the web rather than stored in a built-in repository
 
-- **Portability**: All **\texttt{R}** objects should be easy to export and process with different softwares:
-  - We work in the **\texttt{tidyverse}** framework, and all outputs are structured as **tibbles**
+- **Portability**: All `R` objects should be easy to export and process with different softwares:
+  - We work in the `tidyverse` framework, and all outputs are structured as **tibbles**
   
  
 
@@ -247,11 +246,12 @@ example.scheme()
 - Main source of information regarding the **school infrastructure**
 
 - Mostly includes **categorical variables**, regarding several aspects such as:
-  - Environmental context
-  - Reachability by public or private transport
-  - Building period
-  - Surfaces and volumes
+  - **Environmental** context
+  - Reachability by **public** or **private transport**
+  - **Building period**
+  - **Surfaces** and **volumes**
 
+- Covers school years: **2015 - 2023,  except 2016/17** and **2019/20**
 
 ## School buildings database
 
@@ -268,9 +268,10 @@ example.scheme()
 Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, input_Registry = Registry23) 
 DB23_MIUR_n <- Input_DB23_MIUR %>% Util_DB_MIUR_num()
 DB23_MIUR <- Group_DB_MIUR(DB23_MIUR_n, InnerAreas = F)$
-  Municipality_data %>%  dplyr::mutate(log_Surface = log(.data$School_area_surface))
+  Municipality_data %>%  
+  dplyr::mutate(log_Surface = log(.data$School_area_surface))
 ```
-
+ <!-- 
 ## School buildings database
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 Output of `Util_DB_MIUR_num()`:
@@ -281,18 +282,7 @@ nn <- c(11:ncol(DB23_MIUR_n))
 DT::datatable(DB23_MIUR_n, options = list(pageLength = 6)) %>% 
   DT::formatRound(columns = nn, digits = 3)
 ```
-
-
-## School buildings database
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-Output of ` Group_DB_MIUR()`
-```{r DB MIUR table, echo = FALSE, warning = FALSE}
-nn <- c(7:ncol(DB23_MIUR))
-
-DT::datatable(DB23_MIUR, options = list(pageLength = 6)) %>% 
-  DT::formatRound(columns = nn, digits = 3)
-```
-
+-->
 
 
 
@@ -303,15 +293,23 @@ DT::datatable(DB23_MIUR, options = list(pageLength = 6)) %>%
 DB23_MIUR %>% 
   Map_School_Buildings(input_shp = Mun22_shp, field = "log_Surface", 
                        level = "LAU", order = "Middle",
-                       region_code = c(15:18), verbose = FALSE)
+                       region_code = c(14:18), verbose = FALSE)
 ```
 
+## Students counts and class size
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-## Students per class
+- Same time coverage as the school buildings database
+- Workflow:
+  - **`Get_nstud`**: **Scrape** the input data in long format
+  - **`Util_nstud_wide`**: Turn the input in **wide** format (each row is a school), compute average **class size** by school, remove **outliers** if required: the user can set an **acceptance boundary** in terms of **school-level** class size 
+  - **`Group_nstud`**: Aggregate to **NUTS/3** and **LAU** level
+
+## Students counts and class size
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Potential **outliers**: the user can set an **acceptance boundary** in terms of **school-level** average class size (arguments `UB_nstud_byclass` and `LB_nstud_byclass`)
+
 ```{r nstud, warnings = FALSE}
 nstud23 <- Get_nstud(2023, verbose = FALSE)
 nstud23_byClass <- nstud23 %>% Util_nstud_wide(UB_nstud_byclass = 45)
@@ -319,14 +317,24 @@ nstud23_mun <- Group_nstud(nstud23_byClass,
   input_Registry = Registry23, input_School2mun = School2mun23, 
   verbose = FALSE)$Municipality_data
 ```
-## Students counts
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-```{r nstud table, echo = FALSE, warning = FALSE}
-nn <- c(6:ncol(nstud23_mun))
+```{r nstud map mute, eval = FALSE, output = FALSE}
+Map_DB(nstud23_mun, input_shp = Mun22_shp,
+       region_code = c(14:18), field = "Students_per_class_8", 
+       order = "Middle", verbose = FALSE, pal = "viridis")
 
-DT::datatable(nstud23_mun, options = list(pageLength = 5)) %>% 
-  DT::formatRound(columns = nn, digits = 2)
 ```
+
+  
+  
+## Students counts ald class size
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+```{r nstud invisible, echo = FALSE}
+ 
+Map_DB(nstud23_mun, input_shp = Mun22_shp,
+       region_code = c(14:18), field = "Students_per_class_8", 
+       order = "Middle", verbose = FALSE, pal = "viridis")
+```
+
 
  
 ## Ultra-Broadband activation
@@ -344,9 +352,8 @@ DT::datatable(nstud23_mun, options = list(pageLength = 5)) %>%
 
 
 ```{r Broadband, warnings = FALSE, output = FALSE}
-
-BB24 <- Get_BroadBand(Date = as.Date("2024-01-01"), verbose = FALSE) %>% 
-  dplyr::filter(.data$Order == "High") %>% 
+input_BB24 <- Get_BroadBand(Date = as.Date("2024-01-01"), verbose = F)
+BB24 <- input_BB24 %>% dplyr::filter(.data$Order == "High") %>% 
   dplyr::group_by(.data$Region_description) %>% 
   dplyr::summarise(Status = mean(.data$BB_Activation_status)) 
 ```
@@ -371,7 +378,7 @@ DT::datatable(BB24, options = list(pageLength = 5)) %>%
 - Three variables:
   `M_`: mean; `S_`: standard deviation; `C_`: coverage
 
-## Invalsi census survey
+## Invalsi census survey (example)
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
@@ -383,9 +390,67 @@ Map_Invalsi(input_shp = Prov22_shp, grade = 13, subj = "MAT",
   pal = "viridis", verbose =FALSE)
 ```
 
+```{r Invalsi municipality, include = FALSE, echo = FALSE, message = FALSE, warnings = FALSE}
+Invalsi_mun <- Get_Invalsi_IS(level = "LAU", verbose = FALSE)
+```
 
 
+## Available information
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Here we show all the merged data available form school year 2022/23 
+- Datasets not provided are downloaded automatically
 
 
+```{r DB part 1, message = FALSE, output = FALSE}
 
+DB23 <- Set_DB(input_SchoolBuildings = Input_DB23_MIUR,
+               input_Invalsi_IS = Invalsi_mun, input_nstud = nstud23,
+               input_InnerAreas = InnerAreas, 
+               input_School2mun = School2mun23, 
+               SchoolBuildings_include_qualitatives = TRUE,
+               SchoolBuildings_count_missing = FALSE,
+               NA_autoRM = FALSE, nstud_check = FALSE, 
+               verbose = FALSE)
+
+
+```
+
+
+## Available information
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+This is the structure of the output database
+```{r DB table, echo = FALSE, warning = FALSE}
+nn <- c(10:ncol(DB23))
+
+DT::datatable(DB23, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = nn, digits = 2)
+```
+ 
+## Usage notes
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- <a href="https://cran.r-project.org/web/packages/SchoolDataIT/index.html" target="_blank"> On CRAN </a>, available under version **0.1.2**
+- **New version** available 
+<a href="https://github.com/lcef97/SchoolDataIT/tree/main" target="_blank"> on Github </a>, waiting to be submitted to CRAN due to CRAN policies (two versions cannot be published at short distance)
+- **Installation** command:
+```{r install, eval = FALSE}
+install.packages(devtools) #If not installed yet
+
+devtools::install_github("lcef97/SchoolDataIT", upgrade = "never") 
+```
+
+## Possible applications
+
+Some of the possible applications of the outputs of this package:
+
+
+- **Spatial** data analysis:
+  - Spatial **cross-correlation** analysis
+  - Spatial regression (**areal modelling**)
+  - Spatial **clustering**
+- Derivation of **composite indicators**
+- **Panel** data analysis: the package covers **6 years**
+- **Editing** and **Imputation** 
+- **Database** hosting
 
