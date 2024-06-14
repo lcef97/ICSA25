@@ -49,7 +49,7 @@ InnerAreas <- Get_InnerAreas()
 ## Rationale - the Data lake
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- The **GRINS** foundation aims at implementing a **Data platform** for the transfer of knowledge and statistical analysis (**AMELIA**)
+- The **GRINS** foundation aims at implementing a ***Data platform** for the transfer of knowledge and statistical analysis* (**AMELIA**)
 
 - Prime matter of the platform: the **data lake**
   - Broad **repository** hosting several categories of **administrative** data from **different sources**
