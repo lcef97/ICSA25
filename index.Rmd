@@ -58,8 +58,7 @@ InnerAreas <- Get_InnerAreas()
   
 
 
-If this document is visualised in PDF form, it is possible to open it
-<a href="https://lcef97.github.io/June_presentation/#1" target="_blank">in the HTML version</a>
+<a href="https://lcef97.github.io/June_presentation/#1" target="_blank">HTML version</a>
 
 
 
@@ -67,9 +66,9 @@ If this document is visualised in PDF form, it is possible to open it
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- The present **R package** is intended as a one of the several **contributions** to the **data lake**
+- The present **R package** is intended as one of the several **contributions** to the **data lake**
 
-- This package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system.
+- This package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system
 
 - Main utility: analysing territorial disparities in **education quality** and **school infrastructure endowment**
 
@@ -121,7 +120,7 @@ datalake.scheme()
   - Inputs are **scraped** from the web rather than stored in a built-in repository
 
 - **Portability**: All `R` objects should be easy to export and process with different softwares:
-  - We work in the `tidyverse` framework, and all outputs are structured as **tibbles**
+  - We work in the `tidyverse` framework and all outputs are structured as **tibbles**
   
  
 
@@ -133,7 +132,7 @@ datalake.scheme()
 
 - **`Get_`**: input **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
 
-- **`Util_`**: utilities; mainly data **modification** or quality checks
+- **`Util_`**: utilities; mainly data **manipulation** or quality checks
 
 - **`Group_`**: data **aggregation** at the relevant territorial level
   - **NUTS-3/Province**
@@ -245,7 +244,8 @@ example.scheme()
 
 - Main source of information on **school infrastructure**
 
-- Mostly includes **categorical variables**, regarding several aspects such as:
+- Mostly includes **categorical variables** indicating whether a school displays or not a given feature 
+- Regards several dimensions, such as:
   - **Environmental** context
   - Reachability by **public** or **private transport**
   - **Building period**
@@ -259,10 +259,10 @@ example.scheme()
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 - Functions:
-  - `Get_DB_MIUR()` Scrape the raw data 
-  - `Util_DB_MIUR_num()` Convert variables to **numeric** and **edit** raw data if required
-  - `Group_DB_MIUR()` Harmonise at the territorial level
-  - `Map_SchoolBuildings()` Render
+  - **`Get_DB_MIUR()`**: **Scrape** the raw data 
+  - **`Util_DB_MIUR_num()`**: Convert variables to **numeric** and **clean** raw data from **missing observations** if required
+  - **`Group_DB_MIUR()`**: Harmonise the school-level observations at the territorial level
+  - **`Map_SchoolBuildings()`**: Render
 
 ```{r School Buildings, results = FALSE, message = FALSE}
 Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, input_Registry = Registry23) 
@@ -290,10 +290,10 @@ DT::datatable(DB23_MIUR_n, options = list(pageLength = 6)) %>%
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 ```{r map, echo = TRUE, message = FALSE,  fig.height = 3.3}
-DB23_MIUR %>% 
-  Map_School_Buildings(input_shp = Mun22_shp, field = "log_Surface", 
-                       level = "LAU", order = "Middle",
-                       region_code = c(14:18), verbose = FALSE)
+DB23_MIUR %>%  Map_School_Buildings(
+  input_shp = Mun22_shp, field = "log_Surface", 
+  level = "LAU", order = "Middle",region_code = c(14:18),
+  verbose = F, col_rev = T, pal = "viridis")
 ```
 
 ## Students counts and class size
@@ -318,21 +318,22 @@ nstud23_mun <- Group_nstud(nstud23_byClass,
   verbose = FALSE)$Municipality_data
 ```
 ```{r nstud map mute, eval = FALSE, output = FALSE}
-Map_DB(nstud23_mun, input_shp = Mun22_shp,
+Map_DB(nstud23_mun, input_shp = Mun22_shp, order = "Middle",
        region_code = c(14:18), field = "Students_per_class_8", 
-       order = "Middle", verbose = FALSE, pal = "viridis")
-
+        verbose = F, pal = "viridis", col_rev = T)
 ```
 
   
   
-## Students counts ald class size
+## Students counts and class size
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-```{r nstud invisible, echo = FALSE}
+Example: class size for the last year of middle school
+
+```{r nstud invisible, echo = FALSE, fig.height = 3.4}
  
-Map_DB(nstud23_mun, input_shp = Mun22_shp,
+Map_DB(nstud23_mun, input_shp = Mun22_shp, order = "Middle",
        region_code = c(14:18), field = "Students_per_class_8", 
-       order = "Middle", verbose = FALSE, pal = "viridis")
+        verbose = F, pal = "viridis", col_rev = T, main ="Class size 8th grade")
 ```
 
 
@@ -342,8 +343,8 @@ Map_DB(nstud23_mun, input_shp = Mun22_shp,
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
-- National Ultra - Broadband plan (2020): regards about **$35.000$ schools** over the national territory (the vast majority)
-- Plan expected to be fulfilled by 2023 EoY; however, works are still in progress for a number of schools (next slide: works status at **2024/01/01** by region)
+- National Ultra - Broadband plan (2020): applies to about **$35.000$ schools** over the national territory (the vast majority)
+- Plan expected to be completed by 2023 EoY; however, works are still in progress for a number of schools (next slide: works status at **2024/01/01** by region)
 - Ultra - Broadband speed until the peering:
   - Minimum guaranteed: **100 megabits/second**
   - Maximum: **1 gigabit/second**
@@ -372,9 +373,10 @@ DT::datatable(BB24, options = list(pageLength = 5)) %>%
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Aggregate measure of **students skills**, expressed either as the territorial average of:
+- Aggregate measure of **students skills**, expressed either as:
   - Percentage of **sufficient tests** (primary schools only)
-  - **Ability** of $i$-th student ($A_i$) to answer correctly the question $Q_j$ of difficulty $D_j$, based on the model
+  - Average students **Ability**, measured with a specific **psychometric model**. 
+  In detail, the ability of the generic $i$-th student ($A_i$) in answering correctly the question $Q_j$ of difficulty $D_j$, based on the model
   $$Prob \lbrace Q_{ij} = 1 \rbrace = \frac{e^{A_i - D_j}}{1 + e^{A_i - D_j}}$$ 
 - **Spatially homogeneous** indicator
 - Three variables:
@@ -389,7 +391,7 @@ DT::datatable(BB24, options = list(pageLength = 5)) %>%
 ```{r Invalsi, message = FALSE, warning = FALSE, fig.height=3.3}
 Map_Invalsi(input_shp = Prov22_shp, grade = 13, subj = "MAT", 
   Year = 2023, level = "NUTS-3",  main ="Maths score",
-  pal = "viridis", verbose =FALSE)
+  pal = "viridis", verbose =F, col_rev = T)
 ```
 
 ```{r Invalsi municipality, include = FALSE, echo = FALSE, message = FALSE, warnings = FALSE}
@@ -400,28 +402,32 @@ Invalsi_mun <- Get_Invalsi_IS(level = "LAU", verbose = FALSE)
 ## Available information
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Here we show all the merged data available form school year 2022/23 
-- Datasets not provided are downloaded automatically
+- Function: **`Set_DB`**: merge singled datasets into a unique object
+- Defined at the **territorial** level, for a **single year**
+- THe user specifies which databases must **not** be included
+- Datasets to include may be
+  - **Plugged in** if already existing in the global environment
+  - **Downloaded** automatically otherwise
+
+## Available information - function call example
+
+Database regarding school year 2022/23 at the **municipality level**
 
 
 ```{r DB part 1, message = FALSE, output = FALSE}
-
 DB23 <- Set_DB(input_SchoolBuildings = Input_DB23_MIUR,
                input_Invalsi_IS = Invalsi_mun, input_nstud = nstud23,
-               input_InnerAreas = InnerAreas, 
-               input_School2mun = School2mun23, 
-               SchoolBuildings_include_qualitatives = TRUE,
-               SchoolBuildings_count_missing = FALSE,
-               NA_autoRM = FALSE, nstud_check = FALSE, 
-               verbose = FALSE)
-
+               input_InnerAreas = InnerAreas, input_School2mun = School2mun23, 
+               SchoolBuildings_include_qualitatives = T,
+               SchoolBuildings_count_missing = F,
+               NA_autoRM = F, nstud_check = F, verbose = F)
 
 ```
 
 
 ## Available information
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-Structure of the merged database - only Apulia region shown
+Structure of the merged database of **2022/23** - only **Apulia** region shown
 ```{r DB table, echo = FALSE, warning = FALSE}
 nn <- c(6:ncol(DB23))
 
@@ -446,6 +452,8 @@ devtools::install_github("lcef97/SchoolDataIT", upgrade = "never")
 
 ## Possible applications
 
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
 Some of the possible applications of the outputs of this package:
 
 
@@ -458,3 +466,7 @@ Some of the possible applications of the outputs of this package:
 - **Editing** and **Imputation** 
 - **Database** hosting
 
+# \n
+ 
+<div class="final-slide"> 
+</div>
