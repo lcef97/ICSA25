@@ -81,7 +81,7 @@ suppressWarnings(Regions <- SchoolDataIT:::prov.names() %>%
   - Take into account **spatial information** in this analysis
 
 <!-- Change the hyperref!!!!!!!!!!!!!!!!!!!!!!!!! -->  
-- <a href="https://lcef97.github.io/June_presentation/#1" target="_blank">HTML version</a>
+- <a href="https://lcef97.github.io/ICSA25/#1" target="_blank">HTML version</a>
 
 
  
