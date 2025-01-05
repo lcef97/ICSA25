@@ -1,10 +1,10 @@
 ---
-title: "SchoolDataIT"
+title: ' A Comprehensive Analysis of the Italian School System Using Harmonized Open
+  Data via the SchoolDataIT R Package'
 author:
 - Leonardo Cefalo (UniBa)
 - Paolo Maranzano (UniMiB)
-subtitle: An R package to Retrieve, Harmonise and Map Open Data regarding the Italian
-  school System
+date: "January 10th 2025"
 output:
   ioslides_presentation:
     css: header_style.css
@@ -25,104 +25,206 @@ tags$head(
 
 ```
 
-```{r input, include = FALSE, message = FALSE, warning = FALSE}
+```{r input, echo = FALSE, message = FALSE, warning = FALSE}
 
 library(SchoolDataIT)
 library(magrittr)
+library(INLA)
 #  #  #  # font-weight: inherit;
-Mun22_shp <- Get_Shapefile(2022, level = "LAU")
-
-Prov22_shp <- Get_Shapefile(2022, level = "NUTS-3")
-
-Registry23 <- Get_Registry(2023)
-
-AdmUnNames <- Get_AdmUnNames(Year = 2022, date = "30_06_")
-
-School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNames = AdmUnNames)
-
-InnerAreas <- Get_InnerAreas()
-
+#Mun22_shp <- Get_Shapefile(2022, level = "LAU")
+#Prov22_shp <- Get_Shapefile(2022, level = "NUTS-3")
+#Registry23 <- Get_Registry(2023)
+#AdmUnNames <- Get_AdmUnNames(Year = 2022, date = "06_30")
+#School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNames = AdmUnNames)
+#InnerAreas <- Get_InnerAreas()
+files <- list.files("R objects", full.names = T)
+for (file in files) load(file)
 ```
 
+```{r Regions, echo = FALSE, warnings = FALSE}
+suppressWarnings(Regions <- SchoolDataIT:::prov.names() %>% 
+  dplyr::mutate(Region_initials = dplyr::case_when(
+    .data$Region_code ==  1 ~ "PIE",
+    .data$Region_code ==  2 ~ "VDA",
+    .data$Region_code ==  3 ~ "LOM",
+    .data$Region_code ==  4 ~ "TAA",
+    .data$Region_code ==  5 ~ "VEN",
+    .data$Region_code ==  6 ~ "FVG",
+    .data$Region_code ==  7 ~ "LIG",
+    .data$Region_code ==  8 ~ "ERM",
+    .data$Region_code ==  9 ~ "TOS",
+    .data$Region_code == 10 ~ "UMB",
+    .data$Region_code == 11 ~ "MAR",
+    .data$Region_code == 12 ~ "LAZ",
+    .data$Region_code == 13 ~ "ABR",
+    .data$Region_code == 14 ~ "MOL",
+    .data$Region_code == 15 ~ "CAM",
+    .data$Region_code == 16 ~ "PUG",
+    .data$Region_code == 17 ~ "BAS",
+    .data$Region_code == 18 ~ "CAL",
+    .data$Region_code == 19 ~ "SIC",
+    .data$Region_code == 20 ~ "SAR"
+  )))
+    
+```
  
- 
-## Rationale - the Data lake
+## The `SchoolDataIT R` package
+
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- The **GRINS** foundation aims at implementing a ***Data platform** for the transfer of knowledge and statistical analysis* (**AMELIA**)
+- **SchoolDataIT** is an **R** package to Retrieve, Harmonise and Map Open Data regarding the Italian Education System 
 
-- Prime matter of the platform: the **data lake**
+- **Compiles** and **displays** the available data sets about Italian school system, with a focus on the **infrastructural features**
+
+- **Scope** of this line of research:
+  - Foster a **Multidimensional** analysis of the state of the school system
+  - Take into account **spatial information** in this analysis
+
+<!-- Change the hyperref!!!!!!!!!!!!!!!!!!!!!!!!! -->  
+- <a href="https://lcef97.github.io/June_presentation/#1" target="_blank">HTML version</a>
+
+
+ 
+## Context: the AMELIA platform
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- The present `R` package is meant as a contribution to the <a href = "https://grins.it/progetto/piattaforma-amelia" target = "_blank"> **AMELIA** </a> **data platform**, managed by the **GRINS** foundation
+
+- **Data platform** for the transfer of knowledge and statistical analysis
   - Broad **repository** hosting several categories of **administrative** data from **different sources**
   - Available to either **private**, **corporate** or **academic** users
-  - Data organised at the **territorial level** of municipalities (**LAU/NUTS-4**)
-  
+  - Data organised at the **territorial level** of municipalities (**LAU**)
 
-
-<a href="https://lcef97.github.io/June_presentation/#1" target="_blank">HTML version</a>
-
-
-
-## Scope
+## The importance of school infrastructure for learning processes
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- The present **R package** is intended as one of the several **contributions** to the **data lake**
 
-- This package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system
+- Drawing increasing interest in **scientific literature**
 
-- Main utility: analysing territorial disparities in **education quality** and **school infrastructure endowment**
+- Foundational work in the **international** context: systematic review by **World Bank** (2019)
+  - Comparison across several countries, both OECD and developing countries
+  - Material factors account for a symbolic "third teacher"
 
 
-```{r datalake graph, echo = FALSE, message = FALSE, fig.height = 2}
+<div class = "footnote">
+  Barrett, P., Treves, A., Shmis, T., Ambasz, D. (2019). *The impact of school infrastructure on learning: A synthesis of the evidence.* International Development in Focus;.  Washington, DC: World Bank. 
+</div>
+
+
+## The importance of school infrastructure for learning processes
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Foundational work in the **Italian** context: working paper by **Bank of Italy** (2023)
+  - Follows a **multidimensional** analysis
+  - Detailed comparison of infrastructure endowment at the **regional** level &rarr; **Northern** regions are typically **advantaged** under many dimensions
+  - Managing territorial gaps is a **complex task** for policymakers due to the **allocation of competences** between State and local authorities
   
-library(DiagrammeR)
-library(DiagrammeRsvg)
+  <div class = "footnote">
+   Bucci, M., Gazzano, L., Gennari, E., Grompone, A., Ivaldi, G., Messina, G.,  Ziglio, G. (2023). *Per chi suona la campan(ell)a? La dotazione di infrastrutture scolastiche in Italia (For whom the bell tolls? The availability of school infrastructure in Italy).* Politica economica, 1-50.
 
-datalake.scheme <- function(width = 750){
+</div>
+
+## The Importance of School infrastructure for learning processes
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- **School infrastructure** influences **learning processes** through several dimensions:
+
+  - School **accessibility**: availability of transport, schools size
+  - Indoor **safety**: enhances learning continuity
+  - Outdoor **safety**, from hazards like pollution of earthquakes
+  - Availability of **Learning** spaces (IT rooms, laboratories)
+  - Availability of **Recreational** spaces (e.g. canteens allow for **full-time** schooling)
+
+
+## The `SchoolDataIT R` package
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- The **`SchoolDataIT`** `R` package has been developed in the spirit of the aforementioned line of research
+
+- Data gathered from different **open institutional sources**
+
+- **Aim**: detecting areas of **educational vulnerability** &rarr; planning of appropriate **development policies**
+
+- Package relies on the `tidyverse` environment &rarr; output datasets **easily exported**
+
+- version <a href="https://cran.r-project.org/web/packages/SchoolDataIT/index.html" target="_blank"> 0.2.2 </a> on CRAN 
+
+- Constant **maintenance** <a href="https://github.com/lcef97/SchoolDataIT/tree/main" target="_blank"> on Github </a> (version 0.2.3, to be submitted to CRAN)
+
+  
+
+## The `SchoolDataIT R` package
+
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+```{r flowchart, echo = F}
+package.scheme.1 <- function(width = 900) {
   return(DiagrammeR::grViz("digraph {
-  graph [layout = dot, rankdir = TB, splines = ortho, fontname = 'Poppins']
-  
-  node  [shape = rectangle, fontname = 'Poppins']        
-  top1  [label = 'Source 1']
-  top2  [label = 'Source 2']
-  top3  [label = '  ...  '     ]
-  top4  [label = 'Source n']
-  mid   [label = 'The Data lake']
-  low   [label = 'AMELIA platform']
-  
+    graph [layout = dot, splines = ortho, rankdir = TB, nodesep = 1.5, overlap = false, fontname = 'Poppins']
 
-  # edge definitions with the node IDs
-  top1 -> mid 
-  top2 -> mid -> low
-  top3 -> mid -> low
-  top4 -> mid
-  }",
-  width = width) )
+    node [shape = parallelogram, style = filled, fillcolor = \"#004E5A60\", fontcolor = black, fontname = 'Poppins', color = \"#004E5A\", fontsize = 20 ]
+    zero[label = 'User-defined input']
+    end1[label = 'Merged database']
+    end2[label = 'Maps']
+
+    node [shape = rectangle, style = filled, fillcolor = \"#004E5A60\", fontcolor = black, fontname = 'Poppins', color = \"#004E5A\", fontsize = 20, width = 3.4]
+    F1[label = 'Get_ functions']
+    F2[label = 'Util_ functions']
+    F3[label = 'Group_ functions']
+    F4[label = 'Set_DB']
+    F5[label = 'Map_ functions']
+
+    node [shape = oval, style = filled, fillcolor = \"#004E5A60\", fontcolor = black, fontname = 'Poppins', color = \"#004E5A\", fontsize = 20, width = 3.4]
+    O1[label = 'Raw datasets']
+    O2[label = 'Spatial\ngeometries']
+    O3[label = 'Edited datasets']
+    O4[label = 'Aggregated datasets']
+
+    # Invisible helper nodes for spacing
+    node [shape = point, width = 0, height = 0, label = '']
+    spacer2
+    spacer1
+
+    # Align nodes into ranks
+    {rank = same; F1; O1}
+    {rank = same; spacer1; F2}
+    {rank = same; F3; spacer2; O4}
+    {rank = same; F4; end1}
+
+    # Edges and directions
+    zero -> F1 [dir = forward]
+    F1 -> O1  
+    F1 -> O2  
+    O1 -> spacer1 [dir = none]   
+    spacer1 -> F2
+    O1 -> F4 [style = dashed]
+    O2 -> F5 [dir = forward]
+    F2 -> O3  
+    #F2 -> spacer2 [style = invisible]   
+    F2 -> O4 
+    O3 -> F3 [direction = forward]
+    F3 -> O4 [dir = forward]
+    O4 -> F4 [dir = forward]
+    O4 -> F5 [dir = forward, style = dashed]
+    F4 -> end1 [dir = forward]
+    end1 -> F5 [dir = forward]
+    F5 -> end2 [dir = forward]
+
+  }", width = width))
 }
 
-
-datalake.scheme()
+package.scheme.1()
 ```
-
-
-
-
-
-
-## Principles followed
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-
-- **Accessibility**: All data must be **accessible** and easy to handle for the **generic user** 
-  - Input data are **open** and come from public web sources
-
-- **Updating**: All information is retrieved in **real time** 
-  - Inputs are **scraped** from the web rather than stored in a built-in repository
-
-- **Portability**: All `R` objects should be easy to export and process with different softwares:
-  - We work in the `tidyverse` framework and all outputs are structured as **tibbles**
   
- 
+<!--
+<img src="SchoolDataIT_Flowchart.png" style="width:100%; height:auto;"  >
+-->
 
 
 ## Main function modules
@@ -132,7 +234,7 @@ datalake.scheme()
 
 - **`Get_`**: input **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
 
-- **`Util_`**: utilities; mainly data **manipulation** or quality checks
+- **`Util_`**: auxiliary functions; mainly data **manipulation** or quality checks
 
 - **`Group_`**: data **aggregation** at the relevant territorial level
   - **NUTS-3/Province**
@@ -140,7 +242,7 @@ datalake.scheme()
 
 - **`Map_`**: displaying
   - **Static** maps (vector format): easy to **export**
-  - **Interactive** maps: preserve **information** on different variables
+  - **Interactive** maps: preserve more **information** 
 
 
 ## Main datasets
@@ -151,320 +253,433 @@ datalake.scheme()
     - National **Schools Registry**
     - **School Buildings** database
     - **Students** and **teachers** counts
-  - Mainly available at the **school level** (except for the count of teachers)
 
 - **Ultra - Broadband** implementation
   - Available at the **school level**
 
 - **Invalsi** census survey
   - Available at the **NUTS-3** and **LAU** level
-
-## Schools Taxonomy
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-- Schools ID - **mechanographical codes**
-  - Most complete list: **National Schools Registry**
-  - Identifies both school **order** and **address** (of high schools)
-
-
-- School buildings ID - typically numeric codes
-  - Only included in the **School buildings DB**
-
-```{r write graph, echo = FALSE, message = FALSE, fig.height = 2}
-# Load the DiagrammeR package
-library(DiagrammeR)
-library(DiagrammeRsvg)
-
-example.scheme <- function(width = 750){
-  return(DiagrammeR::grViz("digraph {
-  graph [layout = dot, rankdir = TB, splines = ortho]
   
-  node  [shape = rectangle, fontname = 'Poppins']        
-  top   [label = 'BAIS033007 (ref. inst.)']
-  mid1  [label = 'BARH03350Q']
-  low1  [label =  '720150110']
-  mid2  [label = 'BARH03301B']
-  low1  [label =  '720150110']
-  mid3  [label = 'BAIS033007']
-  low3  [label = '720010749']
-  low4  [label = '720010734']
-  mid4  [label = 'BATA033013']
-  low4  [label = '720010734']
-  mid4  [label = 'BATA033013']
-  low3  [label = '720010749']
-  mid5  [label = 'BATA033013']
-  low7  [label = '720010745']
-  mid5  [label = 'BASL03301E']
-  low3  [label = '720010749']
-  mid5  [label = 'BASL03301E']
-  low7  [label = '720010745']
-  mid5  [label = 'BASL03301E']
-  low4  [label = '720010734']
-  mid6  [label = 'BARF03301X']
-  low4  [label = '720010734']
-  mid6  [label = 'BARF03301X']
-  low3  [label = '720010749']
-  mid6  [label = 'BARF03301X']
-  low7  [label = '720010745']
-  mid7  [label = 'BARF033508']
-  low4 [label = '720010734']
-
-  
-  # edge definitions with the node IDs
-  top -> mid1 -> low1
-  top -> mid2 -> low1
-  top -> mid3 -> low3
-  mid3 -> low4
-  top -> mid4 -> low4
-  mid4 -> low3
-  mid4 -> low7
-  top -> mid5 -> low3
-  mid5 -> low7
-  mid5 -> low4
-  top -> mid6 -> low4
-  mid6 -> low3
-  mid6 -> low7
-  top -> mid7 -> low4
-
-  }",
-  width = width) )
-}
-
-
-example.scheme()
-```
-
-
+- **Inner areas** taxonomy (**ISTAT**)
 
 
 ## School buildings database
-
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 - Main source of information on **school infrastructure**
 
-- Mostly includes **categorical variables** indicating whether a school displays or not a given feature 
 - Regards several dimensions, such as:
-  - **Environmental** context
-  - Reachability by **public** or **private transport**
-  - **Building period**
-  - **Surfaces** and **volumes**
+  - **Environmental** context, environmental/administrative **restrictions**, acoustic insulation
+  - **Accessibility** through private or public transport
+  - School area **surface**, building **volume**,  **age/period**
+  - Intended use of **learning** and **recreational spaces**
+  - Heating systems and energy saving device
+  - Overcoming **architectural barriers**
+  - **Seismic risk** and **seismic design**
+```{r DB23_MIUR, echo = FALSE, message = FALSE}
+DB23_MIUR <- Group_DB_MIUR(input_DB23_MIUR, input_InnerAreas = InnerAreas, ord_InnerAreas = T, verbose = FALSE)
 
-- Covers school years: **2015 - 2023,  except 2016/17** and **2019/20**
-
-## School buildings database
-
-
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-- Functions:
-  - **`Get_DB_MIUR()`**: **Scrape** the raw data 
-  - **`Util_DB_MIUR_num()`**: Convert variables to **numeric** and **clean** raw data from **missing observations** if required
-  - **`Group_DB_MIUR()`**: Harmonise the school-level observations at the territorial level
-  - **`Map_SchoolBuildings()`**: Render
-
-```{r School Buildings, results = FALSE, message = FALSE}
-Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, input_Registry = Registry23) 
-DB23_MIUR_n <- Input_DB23_MIUR %>% Util_DB_MIUR_num()
-DB23_MIUR <- Group_DB_MIUR(DB23_MIUR_n, InnerAreas = F)$
-  Municipality_data %>%  
-  dplyr::mutate(log_Surface = log(.data$School_area_surface))
 ```
- <!-- 
-## School buildings database
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-Output of `Util_DB_MIUR_num()`:
 
-```{r DB MIUR school level table, echo = FALSE, warning = FALSE, message = FALSE}
-nn <- c(11:ncol(DB23_MIUR_n))
+<!-- - Example: proportion of **middle schools** served by **urban public transport**: -->
 
-DT::datatable(DB23_MIUR_n, options = list(pageLength = 6)) %>% 
-  DT::formatRound(columns = nn, digits = 3)
+```{r transport map, echo = FALSE, message = FALSE,  fig.height = 3.3}
+#DB23_MIUR %>%  Map_School_Buildings(
+#  input_shp = Prov22_shp, field = "Urban_public_transport", 
+#  level = "NUTS-3", order = "Middle",
+#  verbose = F)
+
+
 ```
--->
-
-
-
 ## School buildings database
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-```{r map, echo = TRUE, message = FALSE,  fig.height = 3.3}
+- Example: synthetic indicator of **public transport** availability &larr; **Sensitivity**-based weights$^1$ (using R package <a href = "https://cran.r-project.org/web/packages/compindexR/index.html">`CompindexR`</a>)
+
+
+
+```{r transport idx map, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3}
+
+tpt_indicator <- DB23_MIUR$Province_data %>% dplyr::select(.data$Urban_public_transport,
+                                          .data$Interurban_public_transport,
+                                          .data$Railway_transport,
+                                          .data$School_bus) %>% 
+  compindexR::calc_compindex()
+
+DB23_MIUR$Province_data %>% 
+  dplyr::mutate(Public_transport_idx = tpt_indicator$ci$ci) %>% 
+  Map_School_Buildings(
+  input_shp = Prov22_shp, field = "Public_transport_idx", 
+  level = "NUTS-3", order = "Middle",
+  verbose = F)
+
+```
+<div class = "footnote" >
+$^1$ 0.254 **Urban** transport + 0.158  **Interurban** transport + 0.328 **railway** transport + 0.260 School **buses**
+</div>
+## School buildings database
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Example: proportion of **primary** schools provided with a **school restaurant**
+```{r canteem map, echo = FALSE, message = FALSE,  fig.height = 3.3}
 DB23_MIUR %>%  Map_School_Buildings(
-  input_shp = Mun22_shp, field = "log_Surface", 
-  level = "LAU", order = "Middle",region_code = c(14:18),
-  verbose = F, col_rev = T, pal = "viridis")
+  input_shp = Prov22_shp, field = "Canteen", 
+  level = "NUTS-3", order = "Primary",
+  verbose = F)
 ```
+
+
+ 
+
+
+
 
 ## Students counts and class size
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Same time coverage as the school buildings database
-- Workflow:
-  - **`Get_nstud`**: **Scrape** the input data in long format
-  - **`Util_nstud_wide`**: Turn the input in **wide** format (each row is a school), compute average **class size** by school, remove **outliers** if required: the user can set an **acceptance boundary** in terms of **school-level** class size 
-  - **`Group_nstud`**: Aggregate to **NUTS/3** and **LAU** level
+- Proportion of **primary** schools allowing for **full-time** schooling
 
-## Students counts and class size
+```{r nstud, echo = FALSE, message = FALSE, warning = FALSE}
+nstud23 <- Group_nstud(input_nstud23,
+                       input_Registry = Registry23,
+                       input_School2mun = School2mun23,
+                       input_InnerAreas = InnerAreas,
+                       Year = 2023,
+                       InnerAreas = TRUE,
+                       ord_InnerAreas = TRUE,
+                       verbose = FALSE)
 
+
+nstud23_rt_grouped <- Group_nstud(nstud23_rt,
+                       input_Registry = Registry23,
+                       input_School2mun = School2mun23,
+                       input_InnerAreas = InnerAreas,
+                       Year = 2023,
+                       InnerAreas = TRUE,
+                       ord_InnerAreas = TRUE,
+                       verbose = FALSE)
+
+nstud23_rt_primary_prov <- nstud23_rt_grouped$Province_data %>%
+  dplyr::filter(.data$Order == "Primary") %>% 
+  dplyr::mutate(FT_per_school = .data$Tot_Students_full_time/.data$Tot_Students)
+
+
+```
+
+
+```{r fulltime map, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3.3}
+Map_DB(nstud23_rt_primary_prov, 
+       order = "Primary", level = "NUTS-3",
+       input_shp = Prov22_shp,
+       field = "FT_per_school", 
+       main = "Full-time schooling",
+       verbose = F)
+
+```
+
+## Usage example: classroom size and Invalsi scores
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
+- Suppose we are interested in studying the link between **class size** and **students outcome in Mathematics**
 
-```{r nstud, warnings = FALSE}
-nstud23 <- Get_nstud(2023, verbose = FALSE)
-nstud23_byClass <- nstud23 %>% Util_nstud_wide(UB_nstud_byclass = 45)
-nstud23_mun <- Group_nstud(nstud23_byClass, 
-  input_Registry = Registry23, input_School2mun = School2mun23, 
-  verbose = FALSE)$Municipality_data
-```
-```{r nstud map mute, eval = FALSE, output = FALSE}
-Map_DB(nstud23_mun, input_shp = Mun22_shp, order = "Middle",
-       region_code = c(14:18), field = "Students_per_class_8", 
-        verbose = F, pal = "viridis", col_rev = T)
+  - Tipically **negative** association in literature
+
+- Scope: **last** year of **middle** school, year **2022/23** (last one with complete observations)
+
+- Students outcome measured by **Invalsi scores** (spatially homogeneous indicator, high-quality datum)
+
+  - Mean = $200$ points; between-students s.d. = $40$ points
+  - Available for $\approx 2000$ municipalities
+
+```{r DB23 try, echo = FALSE, message = FALSE, warning = FALSE}
+DB23 <- Set_DB(Year = 2023,
+               ord_InnerAreas = TRUE,
+               BroadBand = F,
+               nteachers = F,
+               input_Registry = Registry23,
+               input_SchoolBuildings = input_DB23_MIUR,
+               input_School2mun = School2mun23,
+               input_Invalsi_IS = Invalsi_IS,
+               input_AdmUnNames = AdmUnNames20220901,
+               input_nstud = input_nstud23,
+               NA_autoRM = T, verbose = F)
+
+DB23_mid <- DB23 %>%
+  dplyr::filter(.data$Order == "Middle") %>%
+  dplyr::select_if(!grepl("_\\d+", names(.)) |
+                     grepl("_8$|_08$", names(.))) %>%
+  dplyr::mutate(Central = .data$A_mun + .data$B_mun) %>%
+  dplyr::mutate(Peripheral = .data$E_mun + .data$F_mun) %>%
+  dplyr::mutate(nstud_8_std =
+                  as.vector(scale(.data$Students_per_class_8))) %>%
+  dplyr::filter(!is.na(.data$M_Italian_8))
+
+DB23_mid_ctr <- Mun22_ctr %>% dplyr::transmute(Municipality_code = .data$PRO_COM_T) %>%
+  dplyr::left_join(DB23_mid) %>%
+  dplyr::filter(!is.na(.data$Province_code))
+
+DB23_mid_ctr$lat <- scale(sf::st_coordinates(DB23_mid_ctr))[,2]
+DB23_mid_ctr$long <- scale(sf::st_coordinates(DB23_mid_ctr))[,1]
+
+
 ```
 
+
+```{r mesh, include = FALSE}
+coords <- sf::st_coordinates(DB23_mid_ctr)
+distances <- sf::st_distance(DB23_mid_ctr, DB23_mid_ctr)
+mesh <- inla.mesh.2d(loc = coords,
+                     max.edge = c(max(distances)/5, max(distances)/2))
+spde <- inla.spde2.pcmatern(mesh = mesh, alpha = 2,
+                            prior.range = c(3.5e+5, 0.95),
+                            prior.sigma = c(2.5, 0.95))
+A.mat <- inla.spde.make.A(mesh=mesh, loc= coords)
+idx <- inla.spde.make.index(name = "idx", n.spde = spde$n.spde)
+
+
+DB23_mid_stack <- inla.stack(
+  data = list(M_Mathematics_8 = DB23_mid_ctr$M_Mathematics_8,
+              M_Italian_8 = DB23_mid_ctr$M_Italian_8),
+  A = list(A.mat, 1),
+  effects = list(c(idx), list(
+    Intercept = rep(1, nrow(DB23_mid_ctr)),
+    nstud_8_std = DB23_mid_ctr$nstud_8_std,
+    Inner_area = DB23_mid_ctr$Inner_area,
+    lat = DB23_mid_ctr$lat,
+    long = DB23_mid_ctr$long)))
+
+```
+
+
+```{r INLA, echo = FALSE, message = FALSE}
+m8_spde <- inla(
+  M_Mathematics_8 ~ -1 + Intercept +
+    nstud_8_std + Inner_area + lat + long +
+    f(idx, model = spde),
+  data = inla.stack.data(DB23_mid_stack, spde = spde),
+  family = "gaussian",
+  control.fixed = list(prec = 0),
+  control.predictor = list(A = inla.stack.A(DB23_mid_stack)),
+  # Commands to make code reproducible
+  control.compute = list(internal.opt = FALSE),
+  num.threads = 1, verbose = T)
+
+
+m8_spde_res <- inla.spde2.result(m8_spde, name = "idx", spde = spde)
+
+spde_summary.hyperpar <- t(data.frame(
+  #Error_var = unlist(inla.zmarginal(inla.tmarginal(function(x) 1/x,
+   #              m8_spde$marginals.hyperpar[[1]]), silent = T)),
+  variance = unlist(inla.zmarginal(
+    m8_spde_res$marginals.variance.nominal[[1]], silent = T)),
+  range = unlist(inla.zmarginal(
+    m8_spde_res$marginals.range.nominal[[1]], silent = T)))[-c(4,6),]) 
+spde_summary.hyperpar[1, ]<- round(spde_summary.hyperpar[1, ], 3)
+spde_summary.hyperpar[2, ]<- round(spde_summary.hyperpar[2, ], 0)
+
+
+```
+
+
+
+
+## Usage example: OLS regression
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Simplest analysis: **OLS** regression of **Invalsi scores** on average **class size** (municipality-level data)
+
+$$
+y = \beta_0 +  \beta_\mathrm{nstud} X_\mathrm{nstud} + \varepsilon
+$$
+
+<p style="font-size: 18px">
+$y$: Invalsi score; $X_\mathrm{nstud}$: classroom size; $\beta$: regression coefficients; $\varepsilon$: Gaussian error
+</p>
+
+&rarr; Puzzling result: **positive** association ($3.236$ Invalsi points):
+```{r ols res, echo = FALSE}
+ols8_0 <- lm(M_Mathematics_8 ~ 1 + nstud_8_std, data = DB23_mid_ctr)
+summary(ols8_0)$coefficients[,c(1,2)] %>% round(3) %>% 
+  DT::datatable( options = list(pageLength = 2))
+```
+
+
+
+
+## Distribution of classroom size
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Does classroom size depend on some **other variables** we are overlooking? &rarr; distribution across the $6$ classes of the inner areas taxonomy (**A**, **B**: pole; **C**: belt; **D**: intermediate; **E**: peripheral; **F**: ultra-peripheral) 
+
+
+```{r nstud boxplot, message = FALSE, warning=FALSE, echo = FALSE, fig.height=3}
+nstud23$Municipality_data  %>% dplyr::filter(.data$Order == "Middle") %>%
+  dplyr::mutate(idx = as.numeric(as.factor(.data$Municipality_code))) %>%
+  dplyr::mutate(Inner_area = dplyr::case_when(
+    .data$A_mun == 1 ~ "A",
+    .data$B_mun == 1 ~ "B",
+    .data$C_mun == 1 ~ "C",
+    .data$D_mun == 1 ~ "D",
+    .data$E_mun == 1 ~ "E",
+    .data$F_mun == 1 ~ "F",
+  )) %>%
+  dplyr::filter(!is.na(.data$Inner_area)) %>%
+  dplyr::left_join(dplyr::select(SchoolDataIT:::prov.names(), c(1,2)), by = "Province_code") %>%
+  dplyr::mutate(Macroregion = dplyr::case_when(
+    .data$Region_code %in% c(1:8) ~ "1_North",
+    .data$Region_code %in% c(9:12) ~ "2_Center",
+    .data$Region_code %in% c(13:20) ~ "3_South")) %>%
+  ggplot2::ggplot(ggplot2::aes(.data$Inner_area, .data$Students_per_class_8))+
+  ggplot2::geom_boxplot() + ggplot2::facet_wrap(ggplot2::vars(.data$Macroregion)) +
+  ggplot2::labs(x = "Inner areas taxonomy", y = "Class size by municipality") +
+  ggplot2::ggtitle("Average class size for school grade 8") +
+  ggplot2::theme(axis.title.x = ggplot2::element_text(size = 14),
+                 axis.title.y = ggplot2::element_text(size = 14),
+                 title = ggplot2::element_text(size = 12))
+
+
+```
+
+
+## Usage example: spatial model
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Take into account **additional information**
+  - Spatial **location** of municipalities
+  - **Inner areas** taxonomy (central/peripheral)
+ - Model:
+ $$
+ y = \beta_0 + X_\mathrm{nstud} \beta_\mathrm{nstud} + X_{I}\beta_{I} + \beta_{\ell} \ell +\beta_{\phi} \phi +u + \varepsilon
+ $$
+   - <p style = "font-size: 18px">
+   $X_{\mathrm{nstud}}$: average classroom size; $X_I$: dummy for inner areas taxonomy (1: inner area, 0: central area), $\ell$: longitude, $\phi$: latitude; 
+   $u$: latent **spatially-structured** Gaussian process
+   </p>
+
+## Usage example: spatial model
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- $u$ defined over a **continuous spatial domain** with prior distribution: $u \sim N(0, \Sigma)$ &rarr; $\Sigma$: Matérn correlation matrix <div class = "footnote"> see:  Banerjee, S., Carlin, B.P., Gelfand, A.E. (2014). *Hierarchical Modeling and Analysis for Spatial Data*, 2nd edition, Chapman and Hall/CRC </div>
   
-  
-## Students counts and class size
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-Example: class size for the last year of middle school
+- $u$ is approximated with a **Gaussian Markov Random Field** defined on a **2-d manifold** <div class = "footnote">
+Lindgren, F., Rue, H., Lindström, J. (2011). *An Explicit Link between Gaussian Fields and Gaussian Markov Random Fields: The Stochastic Partial Differential Equation Approach*, JRSS B, 73(4), pp 423–498 </div>
 
-```{r nstud invisible, echo = FALSE, fig.height = 3.4}
- 
-Map_DB(nstud23_mun, input_shp = Mun22_shp, order = "Middle",
-       region_code = c(14:18), field = "Students_per_class_8", 
-        verbose = F, pal = "viridis", col_rev = T, main ="Class size 8th grade")
+- Model estimated using the **Integrated Nested Laplace Approximation** (**INLA**) <div class = "footnote">
+Rue, H., Martino, S., & Chopin, N. (2009). *Approximate Bayesian inference for latent Gaussian models by using integrated nested Laplace approximations*. JRSS B, 71(2), 319-392. </div>
+
+
+## Usage example: spatial model
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Full model specification
+  - $\beta$ terms have **flat** priors
+  - $\varepsilon \sim N(0, \sigma_{\varepsilon}^2)$, where $\sigma_{\varepsilon}^{-2} \sim \mathrm{Gamma}(1, 5 \cdot 10^{-5})$
+  - $\Sigma$ has variance and range parameters $\sigma^2$ and $r$, both of which are assigned a **penalised compexity** prior, where $r_0 = 350 \mathrm{km}$ and $\sigma_0 = 2.5$: 
+$$
+\left \{ \begin{array}{ll}
+prob \left( r < r_0 \right) = 0.95 \\
+prob \left( \sigma > \sigma_0 \right) = 0.95
+\end{array} \right.
+$$
+
+
+## Spatial regression model results
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+```{r m8_spde summary fixed, echo = FALSE}
+DT::datatable(round(m8_spde$summary.fixed[,c(1,2,3,5)], 3), 
+              options = list(pageLength = 5)) #%>% DT::formatRound(columns = "Status", digits = 4)
+
+```
+  - Classroom size has **not** a significant effect anymore
+  - **Significant** disadvantage of **inner areas**
+  - Strong **North-South** trend
+
+
+## Spatial regression model results
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+```{r trends, warning = FALSE, echo = FALSE, message = FALSE, fig.cap = "Estimated linear trend (left) and latent spatial field (right)"}
+x_range <- range(coords[, 1])
+y_range <- range(coords[, 2])
+grid <- expand.grid(
+  x = seq(x_range[1], x_range[2], length.out = 400),
+  y = seq(y_range[1], y_range[2], length.out = 400)
+)
+
+A_grid <- inla.spde.make.A(mesh = mesh, loc = as.matrix(grid))
+
+grid_sf <- data.frame(
+  x = grid$x, y = grid$y,
+  GF = as.vector(A_grid %*% m8_spde$summary.random$idx$mean),
+  trend = as.vector(scale(grid) %*%
+                      m8_spde$summary.fixed$mean[c(5,4)])) %>%
+  sf::st_as_sf(coords = c("x", "y"), crs = 32632)
+
+intersected_sf <- sf::st_intersection(grid_sf, Prov22_shp)
+intersected_sf$x <- sf::st_coordinates(intersected_sf)[,1]
+intersected_sf$y <- sf::st_coordinates(intersected_sf)[,2]
+
+ggleft <- ggplot2::ggplot(intersected_sf, ggplot2::aes(x = x, y = y, fill = .data$trend)) +
+  ggplot2::geom_tile() +
+  ggplot2::scale_fill_viridis_c()+
+  ggplot2::ggtitle("Expected linear trend")+
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    panel.background = ggplot2::element_rect(fill = "white", color = NA),
+    panel.border = ggplot2::element_rect(color = "black", fill = NA),
+    panel.grid.major = ggplot2::element_line(color = "grey80"),
+    panel.grid.minor = ggplot2::element_line(color = "grey80"),
+  )
+
+ggright <- ggplot2::ggplot(intersected_sf, ggplot2::aes(x = x, y = y, fill = .data$GF)) +
+  ggplot2::geom_tile() +
+  ggplot2::scale_fill_viridis_c()+
+  ggplot2::ggtitle("Expected Gaussian field")+
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    panel.background = ggplot2::element_rect(fill = "white", color = NA),
+    panel.border = ggplot2::element_rect(color = "black", fill = NA),
+    panel.grid.major = ggplot2::element_line(color = "grey80"),
+    panel.grid.minor = ggplot2::element_line(color = "grey80"),
+  )
+
+gridExtra::grid.arrange(ggleft, ggright, nrow = 1)
 ```
 
 
- 
-## Ultra-Broadband activation
 
+## Interpreting the spatial effect
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 
-- National Ultra - Broadband plan (2020): applies to about **$35.000$ schools** over the national territory (the vast majority)
-- Plan expected to be completed by 2023 EoY; however, works are still in progress for a number of schools (next slide: works status at **2024/01/01** by region)
-- Ultra - Broadband speed until the peering:
-  - Minimum guaranteed: **100 megabits/second**
-  - Maximum: **1 gigabit/second**
+- North-South trend  the pole/periphery differences: already kept into account 
 
-
-## Ultra - Broadband activation
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-
-```{r Broadband, warnings = FALSE, output = FALSE}
-input_BB24 <- Get_BroadBand(Date = as.Date("2024-01-01"), verbose = F)
-BB24 <- input_BB24 %>% dplyr::filter(.data$Order == "High") %>% 
-  dplyr::group_by(.data$Region_description) %>% 
-  dplyr::summarise(Status = mean(.data$BB_Activation_status)) 
-```
-
-```{r Broadband summary, echo = FALSE, warnings = FALSE}
-DT::datatable(BB24, options = list(pageLength = 5)) %>% 
-  DT::formatRound(columns = "Status", digits = 4)
+- Hyperparameters posterior summary: median $\sigma^2$ (scale parameter of the spatial effect) about $31$ points
+```{r hyperpar, echo = FALSE}
+DT::datatable(spde_summary.hyperpar, 
+              options = list(pageLength = 5))
 ```
 
 
-
-
-## Invalsi census survey
-
+## Interpreting the spatial effect
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Aggregate measure of **students skills**, expressed either as:
-  - Percentage of **sufficient tests** (primary schools only)
-  - Average students **Ability**, measured with a specific **psychometric model**. 
-  In detail, the ability of the generic $i$-th student ($A_i$) in answering correctly the question $Q_j$ of difficulty $D_j$, based on the model
-  $$Prob \lbrace Q_{ij} = 1 \rbrace = \frac{e^{A_i - D_j}}{1 + e^{A_i - D_j}}$$ 
-- **Spatially homogeneous** indicator
-- Three variables:
-  `M_`: mean; `S_`: standard deviation; `C_`: coverage
+- **Darkest** regions: education **vulnerability** not captured by covariates
+  - Po Delta; Gargano peninsula; Neaples hinterland; upper Ionian Calabria; Northwestern Sardinia
 
-## Invalsi census survey (example)
+- **Brightest** regions: relatively **advantaged** territories
+  - Inland Sicily; Central Italy inland; Salento peninsula
 
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+&rarr; What does this example tell us? 
 
-<!-- Example: Mathematics score for the last year of high school, year 2022/23, province level:  -->
-
-```{r Invalsi, message = FALSE, warning = FALSE, fig.height=3.3}
-Map_Invalsi(input_shp = Prov22_shp, grade = 13, subj = "MAT", 
-  Year = 2023, level = "NUTS-3",  main ="Maths score",
-  pal = "viridis", verbose =F, col_rev = T)
-```
-
-```{r Invalsi municipality, include = FALSE, echo = FALSE, message = FALSE, warnings = FALSE}
-Invalsi_mun <- Get_Invalsi_IS(level = "LAU", verbose = FALSE)
-```
+- Assessing the impact of **class size** on student outcomes is less simple than it seems 
+- **Auxiliary** information such as the **degree of centrality** of municipalities or **geographical information** becomes crucial
 
 
-## Available information
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-- Function: **`Set_DB`**: merge singled datasets into a unique object
-- Defined at the **territorial** level, for a **single year**
-- THe user specifies which databases must **not** be included
-- Datasets to include may be
-  - **Plugged in** if already existing in the global environment
-  - **Downloaded** automatically otherwise
-
-## Available information - function call example
-
-Database regarding school year 2022/23 at the **municipality level**
-
-
-```{r DB part 1, message = FALSE, output = FALSE}
-DB23 <- Set_DB(input_SchoolBuildings = Input_DB23_MIUR,
-               input_Invalsi_IS = Invalsi_mun, input_nstud = nstud23,
-               input_InnerAreas = InnerAreas, input_School2mun = School2mun23, 
-               SchoolBuildings_include_qualitatives = T,
-               SchoolBuildings_count_missing = F,
-               NA_autoRM = F, nstud_check = F, verbose = F)
-
-```
-
-
-## Available information
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-Structure of the merged database of **2022/23** - only **Apulia** region shown
-```{r DB table, echo = FALSE, warning = FALSE}
-nn <- c(6:ncol(DB23))
-
-DB.out <- DB23 %>% dplyr::filter(.data$Province_code %in% c(71, 72, 73, 74, 75, 110))
-
-DT::datatable(DB.out, options = list(pageLength = 5)) %>% 
-  DT::formatRound(columns = nn, digits = 2)
-```
- 
-## Usage notes
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-- <a href="https://cran.r-project.org/web/packages/SchoolDataIT/index.html" target="_blank"> On CRAN </a>, available under version **0.1.2**
-- **New version** available 
-<a href="https://github.com/lcef97/SchoolDataIT/tree/main" target="_blank"> on Github </a>, waiting to be submitted to CRAN due to CRAN policies (two versions cannot be published at short distance)
-- **Installation** command:
-```{r install, eval = FALSE}
-install.packages(devtools) #If not installed yet
-
-devtools::install_github("lcef97/SchoolDataIT", upgrade = "never") 
-```
-
-## Possible applications
-
-<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
-
-Some of the possible applications of the outputs of this package:
-
-
-- **Spatial** data analysis:
-  - Spatial **cross-correlation** analysis
-  - Spatial regression (**areal modelling**)
-  - Spatial **clustering**
-- Derivation of **composite indicators**
-- **Panel** data analysis: the package covers **6 years**
-- **Editing** and **Imputation** 
-- **Database** hosting
 
 # \n
  

@@ -1,0 +1,401 @@
+---
+title: "SchoolDataIT"
+author:
+- Leonardo Cefalo (UniBa)
+- Paolo Maranzano (UniMiB)
+
+subtitle: An R package to Retrieve, Harmonise and Map Open Data regarding the Italian
+  school System
+always_allow_html: true
+output:
+  ioslides_presentation:
+    css: header_style.css
+    slide_level: 2
+  beamer_presentation: default
+---
+
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(htmltools)
+tags$head(
+  tags$link(
+    href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap",
+    rel = "stylesheet"
+  )
+)
+
+```
+
+```{r input, include = FALSE, message = FALSE, warning = FALSE}
+
+library(SchoolDataIT)
+library(magrittr)
+#  #  #  # font-weight: inherit;
+Mun22_shp <- Get_Shapefile(2022, level = "LAU")
+
+Prov22_shp <- Get_Shapefile(2022, level = "NUTS-3")
+
+Registry23 <- Get_Registry(2023)
+
+AdmUnNames <- Get_AdmUnNames(Year = 2022, date = "30_06_")
+
+School2mun23 <- Get_School2mun(2023, input_Registry = Registry23, input_AdmUnNames = AdmUnNames)
+
+InnerAreas <- Get_InnerAreas()
+
+```
+
+ 
+ 
+## Rationale - the Data lake
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- The **GRINS** foundation aims at implementating a **Data platform** for the transfer of knowledge and statistical analysis (**AMELIA**)
+
+- Prime matter of the platform: the **data lake**
+  - Broad **repository** hosting several categories of **administrative** data from **different sources**
+  - Available to either **private**, **corporate** or **academiic** users
+  - Data organised at the **territorial level** of municipalities (**LAU/NUTS-4**)
+  
+
+
+If this document is visualised in PDF form, it is possible to open it
+<a href="https://lcef97.github.io/June_presentation/#1" target="_blank">in the HTML version</a>
+
+
+
+## Scope
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- The present **R package** is intended as a one of the several **contributions** to the **data lake**
+
+- This package covers the dimension of **public education**, with special regards to the **territorial structure** of the education system.
+
+- Main utility: analysing territorial disparities in **education quality** and **school infrastructure endowment**
+
+
+```{r datalake graph, echo = FALSE, message = FALSE, fig.height = 2}
+  
+library(DiagrammeR)
+library(DiagrammeRsvg)
+
+datalake.scheme <- function(width = 750){
+  return(DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB, splines = ortho, fontname = 'Poppins']
+  
+  node  [shape = rectangle, fontname = 'Poppins']        
+  top1  [label = 'Source 1']
+  top2  [label = 'Source 2']
+  top3  [label = '  ...  '     ]
+  top4  [label = 'Source n']
+  mid   [label = 'The Data lake']
+  low   [label = 'AMELIA platform']
+  
+
+  # edge definitions with the node IDs
+  top1 -> mid 
+  top2 -> mid -> low
+  top3 -> mid -> low
+  top4 -> mid
+  }",
+  width = width) )
+}
+
+
+datalake.scheme()
+```
+
+
+
+
+
+
+## Principles followed
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+- **Accessibility**: All data must be publicly accessible and easy to handle for the **generic user** 
+  - Input data are **open** and come from publicly accessible web pages
+
+- **Updating**: All information is retrieved in real time in order to be up-to date
+  - Inputs are **scraped** from the web rather than stored in a built-in repository
+
+- **Portability**: All **\texttt{R}** objects should be easy to export and process with different softwares:
+  - We work in the **\texttt{tidyverse}** framework, and all outputs are structured as **tibbles**
+  
+ 
+
+
+## Main function modules
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+- **`Get_`**: input data **scraping**. Information is not altered and the user receives a data set as close as possible as the provider releases it
+
+- **`Util_`**: utilities; mainly data modification and editing
+
+- **`Group_`**: data aggregation at the relevant territorial level
+  - NUTS-3/Province
+  - LAU/Municipality
+
+- **`Map_`**: displaying
+  - Static maps (vector format): easy to export
+  - Interactive maps: preserve information on different variables
+
+
+## Main datasets
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Data from the **Ministry of Education**
+  - Includes:
+    - National **Schools Registry**
+    - **School Buildings** database
+    - **Students** and **teachers** counts
+  - Mainly available at the school level (except for the count of teachers)
+
+- **Ultra - Broadband** implementation
+  - Available at the school level
+
+- **Invalsi** census survey
+  - Available at the NUTS-3 / LAU level
+
+## Schools Taxonomy
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Schools ID - **mechanographical codes**
+  - Most complete list: **National Schools Registry**
+  - Identifies both school **order** and **address** (of high schools)
+
+
+- School buildings ID - typically numeric codes
+  - Only included in the **School buildings DB**
+
+```{r write graph, echo = FALSE, message = FALSE, fig.height = 2}
+# Load the DiagrammeR package
+library(DiagrammeR)
+library(DiagrammeRsvg)
+
+example.scheme <- function(width = 750){
+  return(DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB, splines = ortho]
+  
+  node  [shape = rectangle, fontname = 'Poppins']        
+  top   [label = 'BAIS033007 (ref. inst.)']
+  mid1  [label = 'BARH03350Q']
+  low1  [label =  '720150110']
+  mid2  [label = 'BARH03301B']
+  low1  [label =  '720150110']
+  mid3  [label = 'BAIS033007']
+  low3  [label = '720010749']
+  low4  [label = '720010734']
+  mid4  [label = 'BATA033013']
+  low4  [label = '720010734']
+  mid4  [label = 'BATA033013']
+  low3  [label = '720010749']
+  mid5  [label = 'BATA033013']
+  low7  [label = '720010745']
+  mid5  [label = 'BASL03301E']
+  low3  [label = '720010749']
+  mid5  [label = 'BASL03301E']
+  low7  [label = '720010745']
+  mid5  [label = 'BASL03301E']
+  low4  [label = '720010734']
+  mid6  [label = 'BARF03301X']
+  low4  [label = '720010734']
+  mid6  [label = 'BARF03301X']
+  low3  [label = '720010749']
+  mid6  [label = 'BARF03301X']
+  low7  [label = '720010745']
+  mid7  [label = 'BARF033508']
+  low4 [label = '720010734']
+
+  
+  # edge definitions with the node IDs
+  top -> mid1 -> low1
+  top -> mid2 -> low1
+  top -> mid3 -> low3
+  mid3 -> low4
+  top -> mid4 -> low4
+  mid4 -> low3
+  mid4 -> low7
+  top -> mid5 -> low3
+  mid5 -> low7
+  mid5 -> low4
+  top -> mid6 -> low4
+  mid6 -> low3
+  mid6 -> low7
+  top -> mid7 -> low4
+
+  }",
+  width = width) )
+}
+
+
+example.scheme()
+```
+
+
+
+
+## School buildings database
+
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Main source of information regarding the **school infrastructure**
+
+- Mostly includes **categorical variables**, regarding several aspects such as:
+  - Environmental context
+  - Reachability by public or private transport
+  - Building period
+  - Surfaces and volumes
+
+
+## School buildings database
+
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Functions:
+  - `Get_DB_MIUR()` Scrape the raw data 
+  - `Util_DB_MIUR_num()` Convert variables to **numeric** and **edit** raw data if required
+  - `Group_DB_MIUR()` Harmonise at the territorial level
+  - `Map_SchoolBuildings()` Render
+
+```{r School Buildings, results = FALSE, message = FALSE}
+Input_DB23_MIUR <- Get_DB_MIUR(Year = 2023, input_Registry = Registry23) 
+DB23_MIUR_n <- Input_DB23_MIUR %>% Util_DB_MIUR_num()
+DB23_MIUR <- Group_DB_MIUR(DB23_MIUR_n, InnerAreas = F)$
+  Municipality_data %>%  dplyr::mutate(log_Surface = log(.data$School_area_surface))
+```
+
+
+
+
+## School buildings database
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+```{r map, echo = TRUE, message = FALSE,  fig.height = 3.3}
+DB23_MIUR %>% 
+  Map_School_Buildings(input_shp = Mun22_shp, field = "log_Surface", 
+                       level = "LAU", order = "Middle",
+                       region_code = c(15:18), verbose = FALSE)
+```
+
+
+## Students per class
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Potential **outliers**: the user can set an **acceptance boundary** in terms of **school-level** average class size (arguments `UB_nstud_byclass` and `LB_nstud_byclass`)
+```{r nstud, warnings = FALSE}
+nstud23 <- Get_nstud(2023, verbose = FALSE)
+nstud23_byClass <- nstud23 %>% Util_nstud_wide(UB_nstud_byclass = 45)
+nstud23_mun <- Group_nstud(nstud23_byClass, 
+  input_Registry = Registry23, input_School2mun = School2mun23, 
+  verbose = FALSE)$Municipality_data
+```
+## Students counts
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+```{r nstud table, echo = FALSE, warning = FALSE}
+nn <- c(6:ncol(nstud23_mun))
+
+DT::datatable(nstud23_mun, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = nn, digits = 2)
+```
+
+ 
+## Ultra-Broadband activation
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+- National Ultra - Broadband plan (2020): regards about **$35.000$ schools** over the national territory (the vast majority)
+- Plan expected to be fulfilled by 2023 EoY; however, works are still in progress for a number of schools
+- By definition, Ultra - BroadBand connection has a minimum guaranteed speed of **100 megabits/second** until the peering, with a maximum of **1 Gigabit/second**
+
+
+## Ultra - Broadband activation
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+
+```{r Broadband, warnings = FALSE, output = FALSE}
+input_BB24 <- Get_BroadBand(Date = as.Date("2024-01-01"), verbose = F)
+BB24 <- input_BB24 %>% dplyr::filter(.data$Order == "High") %>% 
+  dplyr::group_by(.data$Region_description) %>% 
+  dplyr::summarise(Status = mean(.data$BB_Activation_status)) 
+```
+
+```{r Broadband summary, echo = FALSE, warnings = FALSE}
+DT::datatable(BB24, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = "Status", digits = 4)
+```
+
+
+
+
+## Invalsi census survey
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Aggregate measure of **students skills**, expressed either as the territorial average of:
+  - Percentage of **sufficient tests** (primary schools only)
+  - **Ability** of $i$-th student ($A_i$) to answer correctly the question $Q_j$ of difficulty $D_j$, based on the model
+  $$Prob \lbrace Q_{ij} = 1 \rbrace = \frac{e^{A_i - D_j}}{1 + e^{A_i - D_j}}$$ 
+- **Spatially homogeneous** indicator
+- Three variables:
+  `M_`: mean; `S_`: standard deviation; `C_`: coverage
+
+## Invalsi census survey
+
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+<!-- Example: Mathematics score for the last year of high school, year 2022/23, province level:  -->
+
+```{r Invalsi, message = FALSE, warning = FALSE, fig.height=3.3}
+Map_Invalsi(input_shp = Prov22_shp, grade = 13, subj = "MAT", 
+  Year = 2023, level = "NUTS-3",  main ="Maths score",
+  pal = "viridis", verbose =FALSE)
+```
+
+```{r Invalsi municipality, include = FALSE, echo = FALSE, message = FALSE, warnings = FALSE}
+Invalsi_mun <- Get_Invalsi_IS(level = "LAU", verbose = FALSE)
+```
+
+
+## Available information
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+
+- Here we show all the data available form school year 2022/23 
+- Datasets not provided are downloaded automatically
+
+
+```{r DB part 1}
+
+DB23 <- Set_DB(input_SchoolBuildings = Input_DB23_MIUR,
+               input_Invalsi_IS = Invalsi_mun, input_nstud = nstud23,
+               input_InnerAreas = InnerAreas, 
+               input_School2mun = School2mun23, 
+               SchoolBuildings_include_qualitatives = TRUE,
+               SchoolBuildings_count_missing = FALSE,
+               NA_autoRM = FALSE, nstud_check = FALSE, 
+               verbose = FALSE)
+
+
+```
+
+
+## Available information
+<img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
+This is the structure of the output database
+```{r DB table, echo = FALSE, warning = FALSE}
+
+nn <- c(10:ncol(DB23))
+
+DT::datatable(DB23, options = list(pageLength = 5)) %>% 
+  DT::formatRound(columns = nn, digits = 2)
+```

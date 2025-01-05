@@ -15,9 +15,11 @@
 
 .title-slide hgroup h1 {
   position: absolute;
-  font-size: 68px;
+  font-size: 40px;
   margin-top: 260px;
-  margin-left: 2em;
+  left: 1.1em;
+  max-width: 640px;  
+  word-wrap: break-word; 
   color: #fff;
 }
 
@@ -39,7 +41,7 @@
   font-size: 18px;
   color: #fff;
   top: calc(2em + 460px); 
-  right: 120px;
+  right: 140px;
   line-height: 1.01;
   text-align: right;
 }
@@ -120,4 +122,31 @@ table.dataTable {
 .small-log > pre{
   font-size: 12px;
   line-height: 1; 
+}
+
+.final-slide {
+  background-image: url('thk.png');
+  width: 716px;
+  height: 537px;
+  background-size: contain;  
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #004E5A;
+}
+
+.footnote {
+  position: relative;
+  bottom: 0px;
+  font-size: 0.7em;
+  /*color: gray;*/
+}
+
+
+slides > slide.dark {
+  background: #004E5A !important; 
 }
