@@ -484,6 +484,7 @@ spde_summary.hyperpar[2, ]<- round(spde_summary.hyperpar[2, ], 0)
 
 
 
+
 ## Usage example: OLS regression
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
