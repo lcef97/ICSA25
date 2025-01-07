@@ -499,7 +499,9 @@ $y$: Invalsi score; $X_\mathrm{nstud}$: classroom size; $\beta$: regression coef
 </p>
 
 &rarr; Puzzling result: **positive** association ($3.236$ Invalsi points)
-&rarr; Does classroom size incorporate **additional information** we are overlooking? &rarr; example: **demographic** dynamics: classrooms are more crowded in **infrastructural poles** than in **peripheral areas**
+&rarr; Does classroom size incorporate **additional information** we are overlooking? 
+
+  - example: **demographic** dynamics: classrooms are more crowded in **infrastructural poles** than in **peripheral areas**
 
 ## Usage example: OLS regression
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
@@ -572,12 +574,15 @@ nstud23$Municipality_data  %>% dplyr::filter(.data$Order == "Middle") %>%
 
 <div class = "footnote"> see:  Banerjee, S., Carlin, B.P., Gelfand, A.E. (2014). *Hierarchical Modeling and Analysis for Spatial Data*, 2nd edition, Chapman and Hall/CRC </div>
   
+  
 - $u$ is approximated with a **Gaussian Markov Random Field** defined on a **2-d manifold** 
 
 <div class = "footnote">
 Lindgren, F., Rue, H., Lindström, J. (2011). *An Explicit Link between Gaussian Fields and Gaussian Markov Random Fields: The Stochastic Partial Differential Equation Approach*, JRSS B, 73(4), pp 423–498 </div>
 
+
 - Model estimated using the **Integrated Nested Laplace Approximation** (**INLA**) 
+
 
 <div class = "footnote">
 Rue, H., Martino, S., & Chopin, N. (2009). *Approximate Bayesian inference for latent Gaussian models by using integrated nested Laplace approximations*. JRSS B, 71(2), 319-392. </div>
