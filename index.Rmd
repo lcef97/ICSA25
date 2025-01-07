@@ -77,7 +77,7 @@ suppressWarnings(Regions <- SchoolDataIT:::prov.names() %>%
 - **Compiles** and **displays** the available data sets about Italian school system, with a focus on the **infrastructural features**
 
 - **Scope** of this line of research:
-  - Foster a **Multidimensional** analysis of the state of the school system
+  - Encourage **Multidimensional** analysis of the state of the school system
   - Take into account **spatial information** in this analysis
 
 <!-- Change the hyperref!!!!!!!!!!!!!!!!!!!!!!!!! -->  
@@ -128,7 +128,7 @@ suppressWarnings(Regions <- SchoolDataIT:::prov.names() %>%
 
 </div>
 
-## The Importance of School infrastructure for learning processes
+## The importance of school infrastructure for learning processes
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
@@ -677,9 +677,8 @@ gridExtra::grid.arrange(ggleft, ggright, nrow = 1)
 
 - **North-South** and **pole/periphery** differences already kept into account 
 
-- **Hyperparameters** posterior summary
-  - median $\sigma^2$ (*scale* parameter of the spatial effect) about $31$ points
-  - median **range** about $84.7$ kilometers
+- **Hyperparameters** &rarr; median $\sigma^2$ (**marginal variance** of $u$) about $31$ points; median **range** about $84.7$ km
+
 ```{r hyperpar, echo = FALSE}
 DT::datatable(spde_summary.hyperpar, 
               options = list(pageLength = 5))
@@ -690,7 +689,7 @@ DT::datatable(spde_summary.hyperpar,
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
 - **Darkest** regions: education **vulnerability** not captured by covariates
-  - Po Delta; Gargano peninsula; Neaples hinterland; upper Ionian Calabria; Northwestern Sardinia
+  - Po Delta; Gargano peninsula; Naples hinterland; upper Ionian Calabria; Northwestern Sardinia
 
 - **Brightest** regions: relatively **advantaged** territories
   - Inland Sicily; Central Italy inland; Salento peninsula
