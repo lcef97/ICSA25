@@ -41,32 +41,7 @@ files <- list.files("R objects", full.names = T)
 for (file in files) load(file)
 ```
 
-```{r Regions, echo = FALSE, warnings = FALSE}
-suppressWarnings(Regions <- SchoolDataIT:::prov.names() %>% 
-  dplyr::mutate(Region_initials = dplyr::case_when(
-    .data$Region_code ==  1 ~ "PIE",
-    .data$Region_code ==  2 ~ "VDA",
-    .data$Region_code ==  3 ~ "LOM",
-    .data$Region_code ==  4 ~ "TAA",
-    .data$Region_code ==  5 ~ "VEN",
-    .data$Region_code ==  6 ~ "FVG",
-    .data$Region_code ==  7 ~ "LIG",
-    .data$Region_code ==  8 ~ "ERM",
-    .data$Region_code ==  9 ~ "TOS",
-    .data$Region_code == 10 ~ "UMB",
-    .data$Region_code == 11 ~ "MAR",
-    .data$Region_code == 12 ~ "LAZ",
-    .data$Region_code == 13 ~ "ABR",
-    .data$Region_code == 14 ~ "MOL",
-    .data$Region_code == 15 ~ "CAM",
-    .data$Region_code == 16 ~ "PUG",
-    .data$Region_code == 17 ~ "BAS",
-    .data$Region_code == 18 ~ "CAL",
-    .data$Region_code == 19 ~ "SIC",
-    .data$Region_code == 20 ~ "SAR"
-  )))
-    
-```
+
  
 ## The `SchoolDataIT R` package
 
@@ -249,19 +224,28 @@ package.scheme.1()
 ## Main datasets
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- Data from the **Ministry of Education**
-  - Includes:
-    - National **Schools Registry**
-    - **School Buildings** database
-    - **Students** and **teachers** counts
-
-- **Ultra - Broadband** implementation
-  - Available at the **school level**
-
-- **Invalsi** census survey
-  - Available at the **NUTS-3** and **LAU** level
+- Data from the **Ministry of Education** (school level)
+  - National **Schools Registry**
+  - **School Buildings** database
+  - **Students** and **teachers** counts
   
-- **Inner areas** taxonomy (**ISTAT**)
+<div class = "footnote" >
+Source: <https://dati.istruzione.it/opendata/opendata/>
+</div>
+
+
+- **Ultra - Broadband** implementation (school level)
+
+<div class = "footnote" >
+Source: <https://bandaultralarga.italia.it/scuole-voucher/dashboard-scuole/>
+</div>
+
+
+- **Invalsi** census survey (NUTS-3 and LAU level)
+
+<div class = "footnote" >
+Source: <https://serviziostatistico.invalsi.it/en/archivio-dati/?_sft_invalsi_ss_data_collective=open-data>
+</div>
 
 
 ## School buildings database
