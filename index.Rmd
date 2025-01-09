@@ -128,9 +128,9 @@ for (file in files) load(file)
 
 - Package relies on the `tidyverse` environment &rarr; output datasets **easily exported**
 
-- version <a href="https://cran.r-project.org/web/packages/SchoolDataIT/index.html" target="_blank"> 0.2.2 </a> on CRAN 
+- version <a href="https://cran.r-project.org/web/packages/SchoolDataIT/index.html" target="_blank"> 0.2.2 </a> on CRAN (now compiling version 0.2.3) 
 
-- Constant **maintenance** <a href="https://github.com/lcef97/SchoolDataIT/tree/main" target="_blank"> on Github </a> (version 0.2.3, to be submitted to CRAN)
+- Constant **maintenance** <a href="https://github.com/lcef97/SchoolDataIT/tree/main" target="_blank"> on Github </a> (version 0.2.4, to be submitted to CRAN)
 
   
 
