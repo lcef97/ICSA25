@@ -370,12 +370,12 @@ Map_DB(nstud23_rt_primary_prov,
 
   - Tipically **negative** association in literature
 
-- Scope: **last** year of **middle** school, year **2022/23** (last one with complete observations)
+- Scope: **last** year of **middle** school, year **2022/23**  
 
 - Students outcome measured by **Invalsi scores** (spatially homogeneous indicator, high-quality datum)
 
   - Mean = $200$ points; between-students s.d. = $40$ points
-  - Available for $\approx 2000$ municipalities
+  - Available for $\approx 2000$ municipalities (data downloaded in December 2024)
 
 ```{r DB23 try, echo = FALSE, message = FALSE, warning = FALSE}
 DB23 <- Set_DB(Year = 2023,
