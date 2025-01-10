@@ -47,7 +47,7 @@ for (file in files) load(file)
 
 <img src="GRINS_watermark_v1.png" alt="Watermark Logo" class="watermark-logo">
 
-- **SchoolDataIT** is an **R** package to Retrieve, Harmonise and Map Open Data regarding the Italian Education System 
+- **SchoolDataIT** is an **R** package to **Retrieve**, **Harmonise** and **Map** Open Data regarding the Italian **Education** System 
 
 - **Compiles** and **displays** the available data sets about Italian school system, with a focus on the **infrastructural features**
 
