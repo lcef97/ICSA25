@@ -680,9 +680,9 @@ DT::datatable(spde_summary.hyperpar,
 
 &rarr; What does this example tell us? 
 
-- Assessing the impact of **class size** on student outcomes is less simple than it seems 
-- **Auxiliary** information such as the **degree of centrality** of municipalities or **geographical information** becomes crucial
+- Assessing the impact of **class size** on student outcomes is less simple than it seems &rarr; **Auxiliary** information such as the **degree of centrality** of municipalities or **geographical information** becomes crucial<a href="https://arxiv.org/pdf/2412.17710" target="_blank">.</a>
 
+ 
 
 
 # \n
